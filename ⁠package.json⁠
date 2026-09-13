@@ -1,0 +1,12 @@
+{
+  "name": "sentiment-analyzer",
+  "version": "1.0.0",
+  "description": "Sentiment Analysis App",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0"
+  }
+}
