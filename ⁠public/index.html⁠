@@ -3,36 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>AI Sentiment Analyzer</title>
+
   <style>
-    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .card { background: #1e293b; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; box-sizing: border-box; }
-    input { width: 100%; padding: 0.75rem; margin: 1rem 0; border-radius: 0.5rem; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box; }
-    button { width: 100%; padding: 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; }
-    button:hover { background: #2563eb; }
-    #result { margin-top: 1rem; font-size: 1.2rem; text-align: center; font-weight: bold; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 500px;
+      padding: 35px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #cbd5e1;
+      margin-bottom: 25px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      resize: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 24px;
+      font-weight: bold;
+      min-height: 35px;
+    }
+
+    .positive {
+      color: #4ade80;
+    }
+
+    .negative {
+      color: #f87171;
+    }
+
+    .loading {
+      color: #facc15;
+    }
   </style>
 </head>
+
 <body>
+
   <div class="card">
-    <h2>AI Sentiment Analyzer</h2>
-    <input type="text" id="textInput" placeholder="Enter a sentence...">
-    <button onclick="analyze()">Analyze</button>
+
+    <h1>🤖 AI Sentiment Analyzer</h1>
+
+    <p class="subtitle">
+      Let AI understand the emotion behind your sentence.
+    </p>
+
+    <textarea
+      id="textInput"
+      placeholder="Type your sentence here..."
+    ></textarea>
+
+    <button onclick="analyze()">
+      Analyze Sentiment
+    </button>
+
     <div id="result"></div>
+
   </div>
+
   <script>
     async function analyze() {
-      const text = document.getElementById('textInput').value;
-      const resDiv = document.getElementById('result');
-      resDiv.innerText = "Analyzing...";
-      const response = await fetch('/index', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-      const data = await response.json();
-      resDiv.innerText = data.result || data.error;
+
+      const text = document.getElementById("textInput").value.trim();
+      const result = document.getElementById("result");
+
+      if (!text) {
+        result.className = "negative";
+        result.innerText = "Please enter a sentence.";
+        return;
+      }
+
+      result.className = "loading";
+      result.innerText = "🤖 AI is analyzing...";
+
+      try {
+
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            text: text
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Something went wrong.");
+        }
+
+        if (data.result === "Positive") {
+          result.className = "positive";
+          result.innerText = "😊 Positive";
+        } else {
+          result.className = "negative";
+          result.innerText = "😡 Negative";
+        }
+
+      } catch (error) {
+
+        result.className = "negative";
+        result.innerText = "❌ " + error.message;
+
+      }
     }
   </script>
+
 </body>
 </html>
